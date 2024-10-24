@@ -1,1 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transactions - FinanceFlow Pro</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <link href="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link href="../css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="../index.html" class="logo">
+                    <i class="fas fa-chart-line"></i>
+                    <span>FinanceFlow Pro</span>
+                </a>
+            </div>
+            
+            <nav>
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="../index.html" class="nav-link">
+                            <i class="fas fa-home"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="transactions.html" class="nav-link active">
+                            <i class="fas fa-exchange-alt"></i>
+                            <span>Transactions</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="budgets.html" class="nav-link">
+                            <i class="fas fa-wallet"></i>
+                            <span>Budgets</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="goals.html" class="nav-link">
+                            <i class="fas fa-bullseye"></i>
+                            <span>Goals</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="reports.html" class="nav-link">
+                            <i class="fas fa-chart-pie"></i>
+                            <span>Reports</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="settings.html" class="nav-link">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
 
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-title">
+                    <h1 class="page-title">Transactions</h1>
+                    <p class="text-light">Manage your transactions</p>
+                </div>
+                
+                <div class="header-actions">
+                    <button class="btn btn-secondary" id="theme-toggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button class="btn btn-primary" id="new-transaction-btn">
+                        <i class="fas fa-plus"></i>
+                        New Transaction
+                    </button>
+                </div>
+            </header>
+
+            <!-- Transaction Filters -->
+            <div class="card mb-4">
+                <div class="filters-grid">
+                    <div class="form-group">
+                        <label class="form-label" for="date-range">Date Range</label>
+                        <select id="date-range" class="form-input">
+                            <option value="7">Last 7 days</option>
+                            <option value="30" selected>Last 30 days</option>
+                            <option value="90">Last 90 days</option>
+                            <option value="custom">Custom Range</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="category-filter">Category</label>
+                        <select id="category-filter" class="form-input">
+                            <option value="">All Categories</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="type-filter">Type</label>
+                        <select id="type-filter" class="form-input">
+                            <option value="">All Types</option>
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="search">Search</label>
+                        <input type="text" id="search" class="form-input" placeholder="Search transactions...">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transactions Table -->
+            <div class="card">
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Category</th>
+                                <th>Amount</th>
+                                <th>Type</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactions-list">
+                            <!-- Transactions will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="pagination">
+                    <button class="btn btn-secondary" id="prev-page">Previous</button>
+                    <span class="page-info">Page <span id="current-page">1</span> of <span id="total-pages">1</span></span>
+                    <button class="btn btn-secondary" id="next-page">Next</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- New Transaction Modal -->
+    <div class="modal" id="transaction-modal">
+        <div class="modal-content">
+            <div class="card-header">
+                <h2 class="card-title">Add Transaction</h2>
+                <button class="btn-icon" id="close-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="transaction-form">
+                <div class="form-group">
+                    <label class="form-label" for="description">Description</label>
+                    <input type="text" id="description" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="amount">Amount</label>
+                    <input type="number" id="amount" class="form-input" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="category">Category</label>
+                    <select id="category" class="form-input" required>
+                        <option value="">Select Category</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="type">Type</label>
+                    <select id="type" class="form-input" required>
+                        <option value="expense">Expense</option>
+                        <option value="income">Income</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="date">Date</label>
+                    <input type="date" id="date" class="form-input" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancel-transaction">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Transaction</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <script src="../js/script.js"></script>
+</body>
+</html>
