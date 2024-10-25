@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FinanceFlow Pro - Personal Finance Dashboard</title>
+    <title>Dashboard - FinanceFlow Pro</title>
     
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -11,7 +11,7 @@
     <!-- Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
-    <!-- Chart.js (Required for charts) -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
     
     <!-- Custom CSS -->
@@ -27,7 +27,6 @@
                     <span>FinanceFlow Pro</span>
                 </a>
             </div>
-            
             <nav>
                 <ul class="nav-list">
                     <li class="nav-item">
@@ -75,34 +74,90 @@
             <header class="header">
                 <div class="header-title">
                     <h1 class="page-title">Dashboard</h1>
-                    <p class="text-light">Welcome back! Here's your financial overview.</p>
+                    <p class="text-light">Overview of your finances</p>
                 </div>
                 
                 <div class="header-actions">
                     <button class="btn btn-secondary" id="theme-toggle">
                         <i class="fas fa-moon"></i>
                     </button>
-                    <button class="btn btn-primary" id="new-transaction-btn">
-                        <i class="fas fa-plus"></i>
-                        New Transaction
-                    </button>
                 </div>
             </header>
 
-            <!-- Dashboard Grid -->
+            <!-- Overview Metrics -->
             <div class="dashboard-grid">
-                <!-- Balance Card -->
                 <div class="card">
                     <div class="card-header">
-                        <span class="metric-label">Total Balance</span>
-                        <div class="metric-icon" style="background: var(--accent)">
-                            <i class="fas fa-wallet"></i>
-                        </div>
+                        <h2 class="card-title">Total Balance</h2>
                     </div>
                     <div class="metric-value" id="total-balance">$0.00</div>
-                    <div class="metric-change positive">
-                        <i class="fas fa-arrow-up"></i>
-                        <span id="balance-change">0%</span> vs last month
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Income</h2>
+                    </div>
+                    <div class="metric-value" id="income">$0.00</div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Expenses</h2>
+                    </div>
+                    <div class="metric-value" id="expenses">$0.00</div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Remaining Budget</h2>
+                    </div>
+                    <div class="metric-value" id="remaining-budget">$0.00</div>
+                </div>
+            </div>
+
+            <!-- Monthly Spending Trends -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Monthly Spending Trends</h2>
+                </div>
+                <div class="chart-container">
+                    <canvas id="monthly-trends-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Recent Transactions</h2>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recent-transactions">
+                        <!-- Transactions will be populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Goals & Budget Progress -->
+            <div class="dashboard-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Goal Progress</h2>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="goal-progress-chart"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Budget Allocation</h2>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="budget-allocation-chart"></canvas>
                     </div>
                 </div>
             </div>
