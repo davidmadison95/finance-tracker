@@ -19,6 +19,7 @@
 </head>
 <body>
     <div class="app-container">
+        <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <a href="../index.html" class="logo">
@@ -68,13 +69,128 @@
             </nav>
         </aside>
 
+        <!-- Main Content -->
         <main class="main-content">
             <header class="header">
-                <h1 class="page-title">Financial Goals</h1>
-                <p class="text-light">Track and achieve your financial goals</p>
+                <div class="header-title">
+                    <h1 class="page-title">Financial Goals</h1>
+                    <p class="text-light">Track and achieve your financial goals</p>
+                </div>
+                
+                <div class="header-actions">
+                    <button class="btn btn-secondary" id="theme-toggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button class="btn btn-primary" id="new-goal-btn">
+                        <i class="fas fa-plus"></i>
+                        New Goal
+                    </button>
+                </div>
             </header>
-            <!-- Content for Financial Goals -->
+
+            <!-- Goals Overview -->
+            <div class="dashboard-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Current Goals</h2>
+                    </div>
+                    <div id="current-goals" class="goal-list">
+                        <!-- Goals will be populated by JavaScript -->
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Goal Progress</h2>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="goal-progress-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Goal Categories -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Goal Categories</h2>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary" id="edit-categories-btn">
+                            <i class="fas fa-edit"></i>
+                            Edit Categories
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="goal-categories" class="goal-categories">
+                    <!-- Goal categories will be populated by JavaScript -->
+                </div>
+            </div>
         </main>
+    </div>
+
+    <!-- New Goal Modal -->
+    <div class="modal" id="goal-modal">
+        <div class="modal-content">
+            <div class="card-header">
+                <h2 class="card-title">Create Goal</h2>
+                <button class="btn-icon" id="close-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="goal-form">
+                <div class="form-group">
+                    <label class="form-label" for="goal-name">Goal Name</label>
+                    <input type="text" id="goal-name" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="goal-amount">Target Amount</label>
+                    <input type="number" id="goal-amount" class="form-input" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="goal-date">Target Date</label>
+                    <input type="date" id="goal-date" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="goal-category">Category</label>
+                    <select id="goal-category" class="form-input" required>
+                        <option value="">Select Category</option>
+                        <option value="savings">Savings</option>
+                        <option value="investment">Investment</option>
+                        <option value="purchase">Purchase</option>
+                        <option value="education">Education</option>
+                        <option value="health">Health</option>
+                        <option value="travel">Travel</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancel-goal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Goal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Categories Modal -->
+    <div class="modal" id="categories-modal">
+        <div class="modal-content">
+            <div class="card-header">
+                <h2 class="card-title">Edit Categories</h2>
+                <button class="btn-icon" id="close-categories-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="categories-list" class="categories-list">
+                <!-- Categories will be populated by JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancel-categories">Close</button>
+                <button class="btn btn-primary" id="save-categories">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner"></div>
     </div>
 
     <!-- Custom JS -->
