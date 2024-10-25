@@ -19,7 +19,6 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <a href="../index.html" class="logo">
@@ -27,7 +26,6 @@
                     <span>FinanceFlow Pro</span>
                 </a>
             </div>
-            
             <nav>
                 <ul class="nav-list">
                     <li class="nav-item">
@@ -42,30 +40,6 @@
                             <span>Transactions</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="budgets.html" class="nav-link active">
-                            <i class="fas fa-wallet"></i>
-                            <span>Budgets</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="goals.html" class="nav-link">
-                            <i class="fas fa-bullseye"></i>
-                            <span>Goals</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="reports.html" class="nav-link">
-                            <i class="fas fa-chart-pie"></i>
-                            <span>Reports</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="settings.html" class="nav-link">
-                            <i class="fas fa-cog"></i>
-                            <span>Settings</span>
-                        </a>
-                    </li>
                 </ul>
             </nav>
         </aside>
@@ -73,165 +47,10 @@
         <!-- Main Content -->
         <main class="main-content">
             <header class="header">
-                <div class="header-title">
-                    <h1 class="page-title">Budgets</h1>
-                    <p class="text-light">Manage your monthly budgets</p>
-                </div>
-                
-                <div class="header-actions">
-                    <button class="btn btn-secondary" id="theme-toggle">
-                        <i class="fas fa-moon"></i>
-                    </button>
-                    <button class="btn btn-primary" id="new-budget-btn">
-                        <i class="fas fa-plus"></i>
-                        New Budget
-                    </button>
-                </div>
+                <h1 class="page-title">Budgets</h1>
+                <p class="text-light">Manage your monthly budgets</p>
             </header>
-
-            <!-- Budget Overview -->
-            <div class="dashboard-grid">
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title">Monthly Overview</h2>
-                        <select class="form-input" id="month-selector">
-                            <option value="current">Current Month</option>
-                            <option value="last">Last Month</option>
-                            <option value="next">Next Month</option>
-                        </select>
-                    </div>
-                    <div class="metric-value" id="total-budget">$0.00</div>
-                    <div class="metric-info">Total Budget</div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title">Spending</h2>
-                    </div>
-                    <div class="metric-value" id="total-spent">$0.00</div>
-                    <div class="progress-bar">
-                        <div class="progress" id="spending-progress" style="width: 0%"></div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title">Remaining</h2>
-                    </div>
-                    <div class="metric-value" id="remaining-budget">$0.00</div>
-                    <div class="metric-info">Days remaining: <span id="days-remaining">0</span></div>
-                </div>
-            </div>
-
-            <!-- Budget Categories -->
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">Budget Categories</h2>
-                    <div class="header-actions">
-                        <button class="btn btn-secondary" id="edit-categories-btn">
-                            <i class="fas fa-edit"></i>
-                            Edit Categories
-                        </button>
-                    </div>
-                </div>
-                
-                <div id="budget-categories" class="budget-categories">
-                    <!-- Budget categories will be populated by JavaScript -->
-                </div>
-            </div>
-
-            <!-- Budget Analysis -->
-            <div class="dashboard-grid">
-                <!-- Category Distribution Chart -->
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title">Budget Distribution</h2>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="budget-distribution-chart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Monthly Trends -->
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title">Monthly Trends</h2>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="spending-trends-chart"></canvas>
-                    </div>
-                </div>
-            </div>
         </main>
-    </div>
-
-    <!-- New Budget Modal -->
-    <div class="modal" id="budget-modal">
-        <div class="modal-content">
-            <div class="card-header">
-                <h2 class="card-title">Create Budget</h2>
-                <button class="btn-icon" id="close-modal">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <form id="budget-form">
-                <div class="form-group">
-                    <label class="form-label" for="budget-category">Category</label>
-                    <select id="budget-category" class="form-input" required>
-                        <option value="">Select Category</option>
-                        <option value="housing">Housing</option>
-                        <option value="transportation">Transportation</option>
-                        <option value="food">Food & Dining</option>
-                        <option value="utilities">Utilities</option>
-                        <option value="entertainment">Entertainment</option>
-                        <option value="healthcare">Healthcare</option>
-                        <option value="shopping">Shopping</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="budget-amount">Monthly Amount</label>
-                    <input type="number" id="budget-amount" class="form-input" step="0.01" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="budget-start">Start Date</label>
-                    <input type="date" id="budget-start" class="form-input" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">
-                        <input type="checkbox" id="budget-notifications">
-                        Enable notifications for this budget
-                    </label>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" id="cancel-budget">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Budget</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Edit Categories Modal -->
-    <div class="modal" id="categories-modal">
-        <div class="modal-content">
-            <div class="card-header">
-                <h2 class="card-title">Edit Categories</h2>
-                <button class="btn-icon" id="close-categories-modal">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div id="categories-list" class="categories-list">
-                <!-- Categories will be populated by JavaScript -->
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" id="cancel-categories">Close</button>
-                <button class="btn btn-primary" id="save-categories">Save Changes</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Loading Spinner -->
-    <div class="loading-overlay" id="loading-overlay">
-        <div class="loading-spinner"></div>
     </div>
 
     <!-- Custom JS -->
