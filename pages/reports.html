@@ -19,6 +19,7 @@
 </head>
 <body>
     <div class="app-container">
+        <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <a href="../index.html" class="logo">
@@ -68,13 +69,107 @@
             </nav>
         </aside>
 
+        <!-- Main Content -->
         <main class="main-content">
             <header class="header">
-                <h1 class="page-title">Financial Reports</h1>
-                <p class="text-light">Analyze your financial data</p>
+                <div class="header-title">
+                    <h1 class="page-title">Financial Reports</h1>
+                    <p class="text-light">Analyze your financial data</p>
+                </div>
+                
+                <div class="header-actions">
+                    <button class="btn btn-secondary" id="theme-toggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button class="btn btn-primary" id="new-report-btn">
+                        <i class="fas fa-plus"></i>
+                        Generate Report
+                    </button>
+                </div>
             </header>
-            <!-- Content for Financial Reports -->
+
+            <!-- Reports Overview -->
+            <div class="dashboard-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Monthly Overview</h2>
+                        <select class="form-input" id="report-month-selector">
+                            <option value="current">Current Month</option>
+                            <option value="last">Last Month</option>
+                            <option value="year">Year to Date</option>
+                        </select>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="monthly-report-chart"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Spending by Category</h2>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="category-report-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Custom Reports -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Custom Reports</h2>
+                </div>
+                
+                <div id="custom-reports" class="custom-reports">
+                    <!-- Custom reports list will be populated by JavaScript -->
+                </div>
+            </div>
         </main>
+    </div>
+
+    <!-- New Report Modal -->
+    <div class="modal" id="report-modal">
+        <div class="modal-content">
+            <div class="card-header">
+                <h2 class="card-title">Create Custom Report</h2>
+                <button class="btn-icon" id="close-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="report-form">
+                <div class="form-group">
+                    <label class="form-label" for="report-name">Report Name</label>
+                    <input type="text" id="report-name" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="report-date-range">Date Range</label>
+                    <select id="report-date-range" class="form-input" required>
+                        <option value="7">Last 7 days</option>
+                        <option value="30" selected>Last 30 days</option>
+                        <option value="90">Last 90 days</option>
+                        <option value="custom">Custom Range</option>
+                    </select>
+                </div>
+                <div id="custom-date-range" class="custom-date-range" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label" for="start-date">Start Date</label>
+                        <input type="date" id="start-date" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="end-date">End Date</label>
+                        <input type="date" id="end-date" class="form-input">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancel-report">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Generate Report</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner"></div>
     </div>
 
     <!-- Custom JS -->
