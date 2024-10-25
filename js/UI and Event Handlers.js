@@ -1,94 +1,56 @@
+// Add these methods to the FinanceTracker class
 class FinanceTracker {
     // ... previous code ...
 
-    async initializeEventListeners() {
-        // Navigation and Sidebar
-        this.initializeNavigationListeners();
-        
-        // Transaction Form
-        this.initializeTransactionListeners();
-        
-        // Filters and Search
-        this.initializeFilterListeners();
-        
-        // Category Management
-        this.initializeCategoryListeners();
-        
-        // Goals Management
-        this.initializeGoalListeners();
-        
-        // Settings and Theme
-        this.initializeSettingsListeners();
-        
-        // Import/Export
-        this.initializeDataManagementListeners();
-    }
-
-    initializeNavigationListeners() {
-        // Sidebar toggle for mobile
-        const sidebarToggle = document.querySelector('.sidebar-toggle');
-        const sidebar = document.querySelector('.sidebar');
-        
-        if (sidebarToggle && sidebar) {
-            sidebarToggle.addEventListener('click', () => {
-                sidebar.classList.toggle('active');
-            });
-
-            // Close sidebar when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!sidebar.contains(e.target) && 
-                    !sidebarToggle.contains(e.target) && 
-                    window.innerWidth <= 1024) {
-                    sidebar.classList.remove('active');
-                }
-            });
-        }
-
-        // Navigation menu items
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const view = e.currentTarget.dataset.view;
-                this.navigateToView(view);
-            });
-        });
-    }
-
-    initializeTransactionListeners() {
-        // New Transaction Button
-        document.getElementById('new-transaction-btn')?.addEventListener('click', () => {
-            this.openTransactionModal();
+    initializeEventListeners() {
+        // Theme toggle
+        document.getElementById('theme-toggle')?.addEventListener('click', () => {
+            const newTheme = this.themeManager.toggleTheme();
+            document.getElementById('theme-toggle').innerHTML = 
+                `<i class="fas fa-${newTheme === 'dark' ? 'sun' : 'moon'}"></i>`;
         });
 
-        // Transaction Form
-        const form = document.getElementById('transaction-form');
-        form?.addEventListener('submit', async (e) => {
+        // Transaction Modal Events
+        document.getElementById('new-transaction-btn')?.addEventListener('click', () => 
+            this.openTransactionModal());
+        
+        document.getElementById('close-modal')?.addEventListener('click', () => 
+            this.closeTransactionModal());
+        
+        document.getElementById('cancel-transaction')?.addEventListener('click', () => 
+            this.closeTransactionModal());
+
+        // Transaction Form Submit
+        document.getElementById('transaction-form')?.addEventListener('submit', (e) => {
             e.preventDefault();
-            await this.handleTransactionSubmit(e);
+            this.handleTransactionSubmit(e);
         });
 
-        // Dynamic Category Selection
-        const categorySelect = document.getElementById('transaction-category');
-        const subcategorySelect = document.getElementById('transaction-subcategory');
-        
-        categorySelect?.addEventListener('change', (e) => {
-            this.updateSubcategoryOptions(e.target.value, subcategorySelect);
+        // Chart Period Selection
+        document.getElementById('chart-period')?.addEventListener('change', (e) => {
+            this.currentPeriod = e.target.value;
+            this.updateCharts();
         });
 
-        // Transaction Amount Input Formatting
-        const amountInput = document.getElementById('transaction-amount');
-        amountInput?.addEventListener('input', (e) => {
-            this.formatAmountInput(e.target);
+        // Category Selection Event
+        document.getElementById('category')?.addEventListener('change', (e) => {
+            const type = e.target.value === 'income' ? 'income' : 'expense';
+            document.getElementById('type').value = type;
         });
 
-        // Transaction List Actions
-        document.getElementById('transactions-list')?.addEventListener('click', (e) => {
+        // Type Selection Event
+        document.getElementById('type')?.addEventListener('change', (e) => {
+            if (e.target.value === 'income') {
+                document.getElementById('category').value = 'income';
+            }
+        });
+
+        // Table Row Actions
+        document.getElementById('recent-transactions')?.addEventListener('click', (e) => {
             const action = e.target.closest('[data-action]');
             if (!action) return;
 
-            const transactionId = action.closest('[data-transaction-id]')?.dataset.transactionId;
-            if (!transactionId) return;
-
+            const transactionId = action.closest('tr').dataset.id;
             switch (action.dataset.action) {
                 case 'edit':
                     this.editTransaction(transactionId);
@@ -96,265 +58,188 @@ class FinanceTracker {
                 case 'delete':
                     this.confirmDeleteTransaction(transactionId);
                     break;
-                case 'details':
-                    this.showTransactionDetails(transactionId);
-                    break;
             }
         });
     }
 
-    initializeFilterListeners() {
-        // Date Range Picker
-        const dateRange = document.getElementById('date-range');
-        if (dateRange) {
-            new DateRangePicker(dateRange, {
-                onChange: (start, end) => {
-                    this.filters.startDate = start;
-                    this.filters.endDate = end;
-                    this.applyFilters();
-                }
-            });
+    openTransactionModal(transaction = null) {
+        const modal = document.getElementById('transaction-modal');
+        const form = document.getElementById('transaction-form');
+        const title = modal.querySelector('.card-title');
+
+        // Reset form
+        form.reset();
+        form.removeAttribute('data-transaction-id');
+
+        // Set today's date as default
+        document.getElementById('date').valueAsDate = new Date();
+
+        // If editing existing transaction
+        if (transaction) {
+            title.textContent = 'Edit Transaction';
+            form.dataset.transactionId = transaction.id;
+            this.populateTransactionForm(transaction);
+        } else {
+            title.textContent = 'Add Transaction';
         }
 
-        // Category Filter
-        document.getElementById('category-filter')?.addEventListener('change', (e) => {
-            this.filters.category = e.target.value || null;
-            this.applyFilters();
-        });
-
-        // Type Filter
-        document.getElementById('type-filter')?.addEventListener('change', (e) => {
-            this.filters.type = e.target.value || null;
-            this.applyFilters();
-        });
-
-        // Amount Range Filters
-        const minAmount = document.getElementById('min-amount');
-        const maxAmount = document.getElementById('max-amount');
-
-        [minAmount, maxAmount].forEach(input => {
-            input?.addEventListener('change', () => {
-                this.filters.minAmount = minAmount.value ? parseFloat(minAmount.value) : null;
-                this.filters.maxAmount = maxAmount.value ? parseFloat(maxAmount.value) : null;
-                this.applyFilters();
-            });
-        });
-
-        // Search Input
-        const searchInput = document.getElementById('search-transactions');
-        let searchTimeout;
-
-        searchInput?.addEventListener('input', (e) => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                this.filters.search = e.target.value;
-                this.applyFilters();
-            }, 300);
-        });
-
-        // Clear Filters
-        document.getElementById('clear-filters')?.addEventListener('click', () => {
-            this.clearFilters();
-        });
-    }
-
-    initializeCategoryListeners() {
-        // Category Form
-        document.getElementById('category-form')?.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.handleCategorySubmit(e);
-        });
-
-        // Category Color Picker
-        const colorPicker = document.getElementById('category-color');
-        colorPicker?.addEventListener('change', (e) => {
-            this.updateColorPreview(e.target.value);
-        });
-
-        // Category List Actions
-        document.getElementById('categories-list')?.addEventListener('click', (e) => {
-            const action = e.target.closest('[data-action]');
-            if (!action) return;
-
-            const categoryId = action.closest('[data-category-id]')?.dataset.categoryId;
-            if (!categoryId) return;
-
-            switch (action.dataset.action) {
-                case 'edit':
-                    this.editCategory(categoryId);
-                    break;
-                case 'delete':
-                    this.confirmDeleteCategory(categoryId);
-                    break;
-                case 'subcategories':
-                    this.showSubcategories(categoryId);
-                    break;
-            }
-        });
-    }
-
-    initializeGoalListeners() {
-        // Goal Form
-        document.getElementById('goal-form')?.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.handleGoalSubmit(e);
-        });
-
-        // Goal Progress Updates
-        document.getElementById('goals-list')?.addEventListener('click', (e) => {
-            const action = e.target.closest('[data-action]');
-            if (!action) return;
-
-            const goalId = action.closest('[data-goal-id]')?.dataset.goalId;
-            if (!goalId) return;
-
-            switch (action.dataset.action) {
-                case 'edit':
-                    this.editGoal(goalId);
-                    break;
-                case 'delete':
-                    this.confirmDeleteGoal(goalId);
-                    break;
-                case 'update-progress':
-                    this.updateGoalProgress(goalId);
-                    break;
-            }
-        });
-    }
-
-    initializeSettingsListeners() {
-        // Theme Toggle
-        document.getElementById('theme-toggle')?.addEventListener('click', () => {
-            this.themeManager.toggleTheme();
-            this.updateCharts(); // Update charts for new theme
-        });
-
-        // Settings Form
-        document.getElementById('settings-form')?.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.handleSettingsSubmit(e);
-        });
-
-        // Currency Selection
-        document.getElementById('currency-select')?.addEventListener('change', (e) => {
-            this.settings.currency = e.target.value;
-            this.saveSettings();
-            this.updateUI();
-        });
-
-        // Language Selection
-        document.getElementById('language-select')?.addEventListener('change', (e) => {
-            this.settings.language = e.target.value;
-            this.saveSettings();
-            this.updateUI();
-        });
-
-        // Notification Settings
-        document.getElementById('notifications-toggle')?.addEventListener('change', (e) => {
-            this.settings.notifications = e.target.checked;
-            this.saveSettings();
-        });
-    }
-
-    initializeDataManagementListeners() {
-        // Export Data
-        document.getElementById('export-data')?.addEventListener('click', () => {
-            this.exportData();
-        });
-
-        // Import Data
-        const importInput = document.getElementById('import-data');
-        importInput?.addEventListener('change', async (e) => {
-            if (e.target.files.length > 0) {
-                await this.importData(e.target.files[0]);
-                e.target.value = ''; // Reset input
-            }
-        });
-
-        // Backup Settings
-        document.getElementById('auto-backup-toggle')?.addEventListener('change', (e) => {
-            this.settings.autoBackup = e.target.checked;
-            this.saveSettings();
-            if (e.target.checked) {
-                this.scheduleAutoBackup();
-            }
-        });
-    }
-
-    // Modal Management
-    openModal(modalId) {
-        const modal = document.getElementById(modalId);
-        if (!modal) return;
+        // Populate categories
+        this.populateCategorySelect();
 
         modal.classList.add('active');
-        this.trapFocus(modal);
-        this.handleModalClose(modal);
     }
 
-    closeModal(modalId) {
-        const modal = document.getElementById(modalId);
-        if (!modal) return;
-
+    closeTransactionModal() {
+        const modal = document.getElementById('transaction-modal');
         modal.classList.remove('active');
-        this.releaseFocus();
+        document.getElementById('transaction-form').reset();
     }
 
-    trapFocus(element) {
-        const focusableElements = element.querySelectorAll(
-            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
+    populateTransactionForm(transaction) {
+        document.getElementById('description').value = transaction.description;
+        document.getElementById('amount').value = transaction.amount;
+        document.getElementById('category').value = transaction.category;
+        document.getElementById('type').value = transaction.type;
+        document.getElementById('date').value = transaction.date.split('T')[0];
+    }
 
-        const firstFocusable = focusableElements[0];
-        const lastFocusable = focusableElements[focusableElements.length - 1];
+    populateCategorySelect() {
+        const select = document.getElementById('category');
+        select.innerHTML = '<option value="">Select Category</option>';
 
-        element.addEventListener('keydown', (e) => {
-            if (e.key !== 'Tab') return;
-
-            if (e.shiftKey) {
-                if (document.activeElement === firstFocusable) {
-                    lastFocusable.focus();
-                    e.preventDefault();
-                }
-            } else {
-                if (document.activeElement === lastFocusable) {
-                    firstFocusable.focus();
-                    e.preventDefault();
-                }
-            }
+        this.categoryManager.getAllCategories().forEach(category => {
+            const option = document.createElement('option');
+            option.value = category.id;
+            option.textContent = category.name;
+            select.appendChild(option);
         });
-
-        firstFocusable.focus();
     }
 
-    // Form Handling Methods
     async handleTransactionSubmit(event) {
+        event.preventDefault();
+        this.showLoader();
+
         try {
             const form = event.target;
-            const formData = new FormData(form);
-
-            const transaction = {
-                description: formData.get('description'),
-                amount: parseFloat(formData.get('amount')),
-                category: formData.get('category'),
-                subcategory: formData.get('subcategory'),
-                type: formData.get('type'),
-                date: formData.get('date') || new Date().toISOString(),
-                notes: formData.get('notes')
+            const transactionData = {
+                description: document.getElementById('description').value,
+                amount: parseFloat(document.getElementById('amount').value),
+                category: document.getElementById('category').value,
+                type: document.getElementById('type').value,
+                date: document.getElementById('date').value
             };
 
             if (form.dataset.transactionId) {
-                await this.updateTransaction(form.dataset.transactionId, transaction);
+                await this.updateTransaction(form.dataset.transactionId, transactionData);
             } else {
-                await this.addTransaction(transaction);
+                await this.addTransaction(transactionData);
             }
 
-            this.closeModal('transaction-modal');
-            form.reset();
+            this.closeTransactionModal();
         } catch (error) {
             console.error('Transaction submission error:', error);
             this.showNotification('Error saving transaction', 'error');
+        } finally {
+            this.hideLoader();
         }
     }
 
-    // ... Additional event handling methods ...
+    updateUI() {
+        this.updateMetrics();
+        this.updateTransactionsList();
+        this.updateCharts();
+    }
+
+    updateMetrics() {
+        const metrics = this.calculateMetrics();
+        
+        // Update balance card
+        document.getElementById('total-balance').textContent = 
+            this.formatCurrency(metrics.balance);
+        document.getElementById('balance-change').textContent = 
+            `${Math.abs(metrics.balanceChange).toFixed(1)}%`;
+        
+        // Update income card
+        document.getElementById('total-income').textContent = 
+            this.formatCurrency(metrics.income);
+        document.getElementById('income-change').textContent = 
+            `${Math.abs(metrics.incomeChange).toFixed(1)}%`;
+        
+        // Update expenses card
+        document.getElementById('total-expenses').textContent = 
+            this.formatCurrency(metrics.expenses);
+        document.getElementById('expense-change').textContent = 
+            `${Math.abs(metrics.expenseChange).toFixed(1)}%`;
+
+        // Update change indicators
+        this.updateChangeIndicator('balance-change', metrics.balanceChange);
+        this.updateChangeIndicator('income-change', metrics.incomeChange);
+        this.updateChangeIndicator('expense-change', metrics.expenseChange);
+    }
+
+    updateChangeIndicator(elementId, changePercent) {
+        const element = document.getElementById(elementId);
+        if (!element) return;
+
+        const parent = element.parentElement;
+        const icon = parent.querySelector('i');
+
+        if (changePercent > 0) {
+            parent.classList.remove('negative');
+            parent.classList.add('positive');
+            icon.className = 'fas fa-arrow-up';
+        } else {
+            parent.classList.remove('positive');
+            parent.classList.add('negative');
+            icon.className = 'fas fa-arrow-down';
+        }
+    }
+
+    updateTransactionsList() {
+        const tbody = document.getElementById('recent-transactions');
+        if (!tbody) return;
+
+        tbody.innerHTML = '';
+        const recentTransactions = this.transactions.slice(0, 5);
+
+        recentTransactions.forEach(transaction => {
+            const tr = document.createElement('tr');
+            tr.dataset.id = transaction.id;
+            
+            const category = this.categoryManager.getCategoryById(transaction.category);
+            const categoryName = category ? category.name : transaction.category;
+            
+            tr.innerHTML = `
+                <td>${transaction.description}</td>
+                <td>${categoryName}</td>
+                <td>${this.formatDate(transaction.date, 'short')}</td>
+                <td class="${transaction.type === 'income' ? 'positive' : 'negative'}">
+                    ${transaction.type === 'income' ? '+' : '-'}${this.formatCurrency(transaction.amount)}
+                </td>
+                <td>
+                    <button class="btn-icon" data-action="edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-icon" data-action="delete">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+
+            tbody.appendChild(tr);
+        });
+    }
+
+    confirmDeleteTransaction(id) {
+        if (confirm('Are you sure you want to delete this transaction?')) {
+            this.deleteTransaction(id);
+        }
+    }
+
+    editTransaction(id) {
+        const transaction = this.transactions.find(t => t.id === parseInt(id));
+        if (transaction) {
+            this.openTransactionModal(transaction);
+        }
+    }
 }
