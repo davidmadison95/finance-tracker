@@ -1,4 +1,3 @@
-// Add these methods to the FinanceTracker class
 class FinanceTracker {
     // ... previous code ...
 
@@ -6,9 +5,7 @@ class FinanceTracker {
         try {
             await Promise.all([
                 this.initializeMainChart(),
-                this.initializeCategoryChart(),
-                this.initializeTrendChart(),
-                this.initializeGoalsChart()
+                this.initializeCategoryChart()
             ]);
         } catch (error) {
             console.error('Error initializing charts:', error);
@@ -20,6 +17,7 @@ class FinanceTracker {
         const ctx = document.getElementById('main-chart')?.getContext('2d');
         if (!ctx) return;
 
+        // Create gradients for the chart
         const gradientIncome = ctx.createLinearGradient(0, 0, 0, 400);
         gradientIncome.addColorStop(0, 'rgba(5, 150, 105, 0.2)');
         gradientIncome.addColorStop(1, 'rgba(5, 150, 105, 0)');
@@ -53,58 +51,70 @@ class FinanceTracker {
                     }
                 ]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: {
-                    intersect: false,
-                    mode: 'index'
-                },
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        labels: {
-                            usePointStyle: true,
-                            padding: 20
-                        }
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(17, 24, 39, 0.8)',
-                        padding: 12,
-                        titleColor: '#fff',
-                        titleFont: {
-                            size: 14,
-                            weight: 'normal'
-                        },
-                        bodyFont: {
-                            size: 13
-                        },
-                        bodySpacing: 8,
-                        callbacks: {
-                            label: (context) => {
-                                return `${context.dataset.label}: ${this.formatCurrency(context.raw)}`;
-                            }
+            options: this.getMainChartOptions()
+        });
+    }
+
+    getMainChartOptions() {
+        return {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20,
+                        font: {
+                            size: 12
                         }
                     }
                 },
-                scales: {
-                    x: {
-                        grid: {
-                            display: false
-                        }
+                tooltip: {
+                    backgroundColor: 'rgba(17, 24, 39, 0.8)',
+                    titleFont: {
+                        size: 13
                     },
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.05)'
-                        },
-                        ticks: {
-                            callback: (value) => this.formatCurrency(value, true)
+                    bodyFont: {
+                        size: 12
+                    },
+                    padding: 12,
+                    callbacks: {
+                        label: (context) => {
+                            return `${context.dataset.label}: ${this.formatCurrency(context.raw)}`;
                         }
                     }
                 }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 11
+                        }
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    },
+                    ticks: {
+                        font: {
+                            size: 11
+                        },
+                        callback: (value) => this.formatCurrency(value)
+                    }
+                }
             }
-        });
+        };
     }
 
     initializeCategoryChart() {
@@ -122,131 +132,42 @@ class FinanceTracker {
                     hoverOffset: 4
                 }]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '75%',
-                plugins: {
-                    legend: {
-                        position: 'right',
-                        labels: {
-                            usePointStyle: true,
-                            padding: 20,
-                            font: {
-                                size: 12
-                            }
-                        }
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(17, 24, 39, 0.8)',
-                        callbacks: {
-                            label: (context) => {
-                                const percentage = ((context.raw / context.dataset.data.reduce((a, b) => a + b)) * 100).toFixed(1);
-                                return `${context.label}: ${this.formatCurrency(context.raw)} (${percentage}%)`;
-                            }
-                        }
-                    }
-                }
-            }
+            options: this.getCategoryChartOptions()
         });
     }
 
-    initializeTrendChart() {
-        const ctx = document.getElementById('trend-chart')?.getContext('2d');
-        if (!ctx) return;
-
-        this.charts.trend = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: 'Net Income',
-                    data: [],
-                    backgroundColor: [],
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: (context) => `Net Income: ${this.formatCurrency(context.raw)}`
+    getCategoryChartOptions() {
+        return {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '75%',
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20,
+                        font: {
+                            size: 12
                         }
                     }
                 },
-                scales: {
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    },
-                    y: {
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.05)'
-                        },
-                        ticks: {
-                            callback: (value) => this.formatCurrency(value, true)
+                tooltip: {
+                    backgroundColor: 'rgba(17, 24, 39, 0.8)',
+                    callbacks: {
+                        label: (context) => {
+                            const percentage = ((context.raw / context.dataset.data.reduce((a, b) => a + b)) * 100).toFixed(1);
+                            return `${context.label}: ${this.formatCurrency(context.raw)} (${percentage}%)`;
                         }
                     }
                 }
             }
-        });
-    }
-
-    initializeGoalsChart() {
-        const ctx = document.getElementById('goals-chart')?.getContext('2d');
-        if (!ctx) return;
-
-        this.charts.goals = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: 'Progress',
-                    data: [],
-                    backgroundColor: '#3b82f6',
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    x: {
-                        max: 100,
-                        grid: {
-                            display: false
-                        },
-                        ticks: {
-                            callback: (value) => `${value}%`
-                        }
-                    },
-                    y: {
-                        grid: {
-                            display: false
-                        }
-                    }
-                }
-            }
-        });
+        };
     }
 
     updateCharts() {
         this.updateMainChart();
         this.updateCategoryChart();
-        this.updateTrendChart();
-        this.updateGoalsChart();
     }
 
     updateMainChart() {
@@ -261,12 +182,56 @@ class FinanceTracker {
         this.charts.main.update();
     }
 
+    getChartData(days) {
+        const now = new Date();
+        const data = Array.from({ length: days }, (_, i) => {
+            const date = new Date(now);
+            date.setDate(date.getDate() - i);
+            return {
+                date,
+                income: 0,
+                expenses: 0
+            };
+        }).reverse();
+
+        this.transactions.forEach(transaction => {
+            const transactionDate = new Date(transaction.date);
+            const dataPoint = data.find(d => 
+                d.date.toDateString() === transactionDate.toDateString()
+            );
+            
+            if (dataPoint) {
+                if (transaction.type === 'income') {
+                    dataPoint.income += transaction.amount;
+                } else {
+                    dataPoint.expenses += transaction.amount;
+                }
+            }
+        });
+
+        return {
+            labels: data.map(d => this.formatDate(d.date, 'short')),
+            income: data.map(d => d.income),
+            expenses: data.map(d => d.expenses)
+        };
+    }
+
     updateCategoryChart() {
         if (!this.charts.category) return;
 
-        const categoryTotals = this.calculateCategoryTotals(
-            this.getFilteredTransactions(null, null, { type: 'expense' })
+        const categoryTotals = {};
+        const recentTransactions = this.getFilteredTransactions(
+            new Date(Date.now() - this.currentPeriod * 24 * 60 * 60 * 1000)
         );
+
+        recentTransactions.forEach(transaction => {
+            if (transaction.type === 'expense') {
+                if (!categoryTotals[transaction.category]) {
+                    categoryTotals[transaction.category] = 0;
+                }
+                categoryTotals[transaction.category] += transaction.amount;
+            }
+        });
 
         const sortedCategories = Object.entries(categoryTotals)
             .sort(([, a], [, b]) => b - a);
@@ -278,105 +243,32 @@ class FinanceTracker {
 
         this.charts.category.data.datasets[0].data = sortedCategories.map(([, amount]) => amount);
         this.charts.category.data.datasets[0].backgroundColor = sortedCategories.map(([category]) => {
-            const categoryInfo = this.categoryManager.getCategoryById(category);
-            return categoryInfo ? categoryInfo.color : '#64748b';
+            return this.categoryManager.getCategoryColor(category);
         });
 
         this.charts.category.update();
     }
 
-    updateTrendChart() {
-        if (!this.charts.trend) return;
+    animateValue(element, start, end, duration = 1000) {
+        if (!element) return;
 
-        const monthlyData = this.getMonthlyTrends();
+        const startTime = performance.now();
+        const updateValue = (currentTime) => {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
 
-        this.charts.trend.data.labels = monthlyData.labels;
-        this.charts.trend.data.datasets[0].data = monthlyData.netIncome;
-        this.charts.trend.data.datasets[0].backgroundColor = monthlyData.netIncome.map(
-            value => value >= 0 ? '#059669' : '#dc2626'
-        );
+            const value = start + (end - start) * this.easeOutQuad(progress);
+            element.textContent = this.formatCurrency(value);
 
-        this.charts.trend.update();
-    }
-
-    updateGoalsChart() {
-        if (!this.charts.goals) return;
-
-        const activeGoals = this.goals.filter(goal => goal.status === 'in_progress');
-        
-        this.charts.goals.data.labels = activeGoals.map(goal => goal.description);
-        this.charts.goals.data.datasets[0].data = activeGoals.map(goal => goal.getProgress());
-        
-        this.charts.goals.update();
-    }
-
-    getMonthlyTrends(months = 6) {
-        const now = new Date();
-        const data = Array.from({ length: months }, (_, i) => {
-            const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-            return {
-                date,
-                income: 0,
-                expenses: 0
-            };
-        }).reverse();
-
-        this.transactions.forEach(transaction => {
-            const transDate = new Date(transaction.date);
-            const dataPoint = data.find(d => 
-                d.date.getMonth() === transDate.getMonth() && 
-                d.date.getFullYear() === transDate.getFullYear()
-            );
-
-            if (dataPoint) {
-                if (transaction.type === 'income') {
-                    dataPoint.income += transaction.amount;
-                } else {
-                    dataPoint.expenses += transaction.amount;
-                }
+            if (progress < 1) {
+                requestAnimationFrame(updateValue);
             }
-        });
-
-        return {
-            labels: data.map(d => d.date.toLocaleDateString(this.settings.language, { 
-                month: 'short'
-            })),
-            netIncome: data.map(d => d.income - d.expenses)
         };
+
+        requestAnimationFrame(updateValue);
     }
 
-    updateUI() {
-        this.updateMetrics();
-        this.updateTransactionsList();
-        this.updateCharts();
-        this.updateGoalsList();
-        this.updateCategoryList();
+    easeOutQuad(x) {
+        return 1 - (1 - x) * (1 - x);
     }
-
-    updateMetrics() {
-        const metrics = this.calculateMetrics();
-        
-        // Update summary cards
-        document.getElementById('total-balance').textContent = this.formatCurrency(metrics.balance);
-        document.getElementById('total-income').textContent = this.formatCurrency(metrics.income);
-        document.getElementById('total-expenses').textContent = this.formatCurrency(metrics.expenses);
-        
-        // Update change indicators
-        this.updateMetricChange('balance-change', metrics.changes.balance);
-        this.updateMetricChange('income-change', metrics.changes.income);
-        this.updateMetricChange('expense-change', metrics.changes.expenses);
-        
-        // Update additional metrics if they exist
-        if (document.getElementById('savings-rate')) {
-            document.getElementById('savings-rate').textContent = 
-                `${metrics.savingsRate.toFixed(1)}%`;
-        }
-        
-        if (document.getElementById('avg-transaction')) {
-            document.getElementById('avg-transaction').textContent = 
-                this.formatCurrency(metrics.averageTransaction);
-        }
-    }
-
-    // ... Rest of the class methods ...
 }
